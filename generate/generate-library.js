@@ -1,7 +1,7 @@
 const ChildProcess = require('child_process'), CWD = process.cwd();
 module.exports = generateLibrary;
 async function generateLibrary (args, options, logger, creatables) {
-    var shellCommand = `ng generate library ${args.library}`;
+    var shellCommand = `ng generate library ${args.library}${options.prefix?' -p '+options.prefix:''}`;
     logger.info(`${options.dry?'Preview:':'Executing:'} "${shellCommand}"`);
     if (!options.dry)
         ChildProcess.exec(

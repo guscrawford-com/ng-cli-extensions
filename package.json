@@ -1,6 +1,6 @@
 {
   "name": "@guscrawford.com/ng-cli-extensions",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Internal toolings to augment @angular/cli and streamline congruent practices and conventions across teams working in Aloha",
   "main": "./cli.js",
   "author": "Gus Crawford",
