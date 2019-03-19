@@ -4,12 +4,16 @@ async function removeLibraryScripts (args, options, logger) {
     if (!args.library)
         throw new Error('No library specified');
     logger.info(`${options.dry?'Previewing':'Generating'} library-scripts for ${args.library} on ${CWD}/package.json`);
-    const pkg = new (require('../package-operations'))(args, options, logger);
-    var targetPackagePath = path.join(CWD,'package.json'), targetPackageJson = await pkg.read(targetPackagePath);
+    const FileOperations = new (require('../file-operations'))(args, options, logger);
+    var targetPackagePath = path.join(CWD,'package.json'), targetPackageJson = await FileOperations.read(targetPackagePath);
     var augmentedScriptStanza = reduceScriptStanza(targetPackageJson.scripts, args.library);
+    logger.info(`${options.dry?'Preview':'Updated'} scripts:`)
     logger.info(augmentedScriptStanza);
-    Object.assign(targetPackageJson.scripts, augmentedScriptStanza);
-    return pkg.update(targetPackageJson, targetPackagePath)
+    targetPackageJson.scripts = augmentedScriptStanza;
+    if (!options.dry) {
+        return FileOperations.update(targetPackagePath, targetPackageJson)
+    }
+    return targetPackageJson;
 }
 /**
  * Remove generated scripts to build / watch / package a library inside the current `package.json` `"scripts"` stanza
@@ -17,14 +21,7 @@ async function removeLibraryScripts (args, options, logger) {
  * @param {*} library 
  */
 function reduceScriptStanza(originalScriptStanza, library) {
-    const scriptSet = {
-        'npm-pack':(lib)=>`cd dist/${lib} && npm pack`,
-        'build-watch':(lib)=>`ng build --watch ${lib}`,
-        'build-lib':(lib)=>`ng build --prod ${lib}`,
-        'copy-assets':(lib)=>`xcopy \"projects/${lib}/src/assets\" \"dist/${lib}/assets\" /e /i /y /s`,
-        'package':(lib)=>`yarn build-lib-${lib} && yarn copy-assets-${lib} && yarn npm-pack-${lib}`,
-        'preview':(lib)=>`cd dist/${lib} && (yarn unlink || yarn link) && yarn link`
-    }
+    const scriptSet = require('../library-script-templates')
     var expandScriptStanza = Object.assign({}, originalScriptStanza);
     Object.keys(scriptSet).forEach(scriptName=>{
         delete expandScriptStanza[`${scriptName}-${library}`];

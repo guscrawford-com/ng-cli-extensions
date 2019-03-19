@@ -27,7 +27,7 @@ async function generateLibraryScripts (args, options, logger) {
  * @param {*} library 
  */
 function augmentScriptStanza(originalScriptStanza, library, options) {
-    const SCRIPT_SET = require('./library-script-templates');
+    const SCRIPT_SET = require('../../library-script-templates');
     var expandScriptStanza = Object.assign({}, originalScriptStanza);
     Object.keys(SCRIPT_SET).forEach(scriptName=>{
         expandScriptStanza[`${scriptName}-${library}`] = SCRIPT_SET[scriptName](library, options);
